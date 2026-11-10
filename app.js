@@ -8,7 +8,6 @@ const MIN_WIDTH = 205;
 const MIN_HEIGHT = 85;
 const MIN_FONT_SIZE = 12;
 const MAX_FONT_SIZE = 240;
-const INSET = 22; // Both left+right and top+bottom padding for the actual text.
 const STORAGE_KEY = 'constraint-studio:v1';
 
 const defaults = Object.freeze({
@@ -63,12 +62,11 @@ let lastBounds = { width: 0, height: 0 };
 let raf = 0;
 let dragging = null;
 
-// The probe is plain DOM, deliberately NOT canvas or SVG. Its computed font,
-// tracking, line-height and line wrapping match the visible heading.
-const probe = document.createElement('h2');
-probe.className = 'headline measure-probe';
-probe.setAttribute('aria-hidden', 'true');
-document.body.append(probe);
+// Measure the actual heading inside its actual frame. In wrap mode, a probe
+// with even a 1px difference in width can use a different number of lines.
+// Synchronous measurements during a single animation frame do not paint
+// intermediate font sizes, so no duplicate or detached measuring element is
+// necessary.
 
 function frameBounds() {
   const canvasWidth = els.canvas.clientWidth;
@@ -87,21 +85,18 @@ function applyTypography(element, fontSize) {
   element.classList.toggle('is-wrapped', state.wrap);
 }
 
-function solve(width, height) {
-  const availableWidth = Math.max(1, width - INSET);
-  const availableHeight = Math.max(1, height - INSET);
+function solve(availableWidth, availableHeight) {
   let count = 0;
   function measure(size) {
-    applyTypography(probe, size);
-    probe.style.width = state.wrap ? `${availableWidth}px` : 'max-content';
-    const rect = probe.getBoundingClientRect();
+    applyTypography(els.headline, size);
+    const rect = els.headline.getBoundingClientRect();
     count++;
     return {
-      width: state.wrap ? Math.max(rect.width, probe.scrollWidth) : rect.width,
-      height: Math.max(rect.height, probe.scrollHeight),
+      width: Math.max(rect.width, els.headline.scrollWidth),
+      height: Math.max(rect.height, els.headline.scrollHeight),
     };
   }
-  const fits = (rect) => rect.width <= availableWidth + 0.3 && rect.height <= availableHeight + 0.3;
+  const fits = (rect) => rect.width <= availableWidth && rect.height <= availableHeight;
   let size;
   let bounds;
   let method;
@@ -148,9 +143,13 @@ function draw() {
   const bounds = frameBounds();
   els.frame.style.width = `${bounds.width}px`;
   els.frame.style.height = `${bounds.height}px`;
-  const solution = solve(bounds.width, bounds.height);
+  // Read the effective inner dimensions, including frame borders and any
+  // future CSS changes to the inset. Never estimate the usable area.
+  const inner = els.frameInner.getBoundingClientRect();
+  const solution = solve(inner.width, inner.height);
   currentSize = solution.size;
   lastBounds = solution.bounds;
+  // The solver already applied its last candidate. Restore the chosen size.
   applyTypography(els.headline, solution.size);
   els.dimWidth.textContent = `${Math.round(bounds.width)} px`;
   els.dimHeight.textContent = `${Math.round(bounds.height)} px`;
