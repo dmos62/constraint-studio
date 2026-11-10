@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#f4f2ec" />
+  <meta name="description" content="A tiny inverse-layout playground. Drag a DOM frame and let the browser find the font size that fits." />
+  <title>Constraint Studio — Inverse DOM Layout</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="wordmark" href="./" aria-label="Constraint Studio home">
+        <span class="logo-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+        <span>constraint<span class="wordmark-light">/studio</span></span>
+      </a>
+      <div class="topbar-right">
+        <span class="topbar-label"><span class="live-dot"></span> VANILLA DOM EXPERIMENT</span>
+        <a class="topbar-link" href="https://github.com/declarative-dragging/dragology" target="_blank" rel="noopener noreferrer">Inspired by Dragology <span aria-hidden="true">↗</span></a>
+      <a class="topbar-link" href="https://github.com/dmos62/constraint-studio" target="_blank" rel="noopener noreferrer">Source <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <main>
+      <div class="intro">
+        <div class="eyebrow"><span class="chapter">01 / EXPERIMENT</span><span class="eyebrow-line"></span><span>INVERSE TYPOGRAPHY</span></div>
+        <h1>Don’t set the font size.<br><em>Set the constraint.</em></h1>
+        <p>Drag the edges of the frame. The browser measures the actual text and solves for the largest font size that fits. No canvas, SVG, or framework.</p>
+      </div>
+
+      <section class="workspace" aria-label="Interactive typography playground">
+        <div class="workspace-main">
+          <div class="panel-titleline">
+            <div class="panel-heading"><span class="section-number">A</span> The canvas <span class="tag">LIVE DOM</span></div>
+            <span class="panel-titleline-side"><span class="shortcut-dot"></span> DRAG THE HANDLES</span>
+          </div>
+          <div class="canvas" id="canvas">
+            <div class="canvas-ruler canvas-ruler-top" aria-hidden="true">0 <span>100</span><span>200</span><span>300</span><span>400</span><span>500</span><span>600</span></div>
+            <div class="canvas-ruler canvas-ruler-left" aria-hidden="true"><span>0</span><span>100</span><span>200</span><span>300</span></div>
+            <div class="canvas-content">
+              <div class="frame-outer">
+                <div class="frame" id="frame" role="group" aria-label="Resizable target frame containing the editable heading">
+                  <div class="frame-inner" id="frame-inner">
+                    <h2 class="headline" id="headline"></h2>
+                  </div>
+                  <span class="corner-dot corner-dot-tl" aria-hidden="true"></span>
+                  <span class="corner-dot corner-dot-tr" aria-hidden="true"></span>
+                  <span class="corner-dot corner-dot-bl" aria-hidden="true"></span>
+                  <button class="resize-handle resize-handle-right" data-resize="width" title="Drag to adjust width" aria-label="Resize frame width; use left/right arrow keys" type="button"><span class="grip grip-vertical"></span></button>
+                  <button class="resize-handle resize-handle-bottom" data-resize="height" title="Drag to adjust height" aria-label="Resize frame height; use up/down arrow keys" type="button"><span class="grip grip-horizontal"></span></button>
+                  <button class="resize-handle resize-handle-corner" data-resize="both" title="Drag to adjust width and height" aria-label="Resize frame width and height; use arrow keys" type="button"><span class="corner-glyph" aria-hidden="true">↘</span></button>
+                  <div class="frame-dim frame-dim-width" id="dim-width">640 px</div>
+                  <div class="frame-dim frame-dim-height" id="dim-height">170 px</div>
+                </div>
+              </div>
+            </div>
+            <div class="canvas-bottomline"><span><span class="guide-square"></span> TARGET FRAME</span><span><span class="text-square"></span> MEASURED TYPOGRAPHY</span></div>
+          </div>
+          <div class="metrics" aria-live="off">
+            <div class="metric"><span class="metric-label">SOLVED FONT SIZE</span><span class="metric-value"><strong id="metric-size">—</strong><small> px</small></span></div>
+            <div class="metric"><span class="metric-label">TEXT BOUNDS</span><span class="metric-value"><strong id="metric-text-rect">—</strong><small> px</small></span></div>
+            <div class="metric"><span class="metric-label">LIMITING AXIS</span><span class="metric-value"><strong id="metric-axis">—</strong></span></div>
+            <div class="metric"><span class="metric-label">SOLVER</span><span class="metric-value"><strong id="metric-method">—</strong></span></div>
+          </div>
+        </div>
+
+        <aside class="inspector" aria-label="Typography controls">
+          <div class="panel-titleline">
+            <div class="panel-heading"><span class="section-number">B</span> Properties</div>
+            <span class="panel-titleline-side">EDITABLE STATE</span>
+          </div>
+          <div class="inspector-body">
+            <label class="field" for="headline-input"><span class="field-title">Headline <span class="field-index">01</span></span><textarea id="headline-input" rows="2" spellcheck="false" maxlength="120"></textarea><span class="field-help">Edit the words. Fitting recalculates automatically.</span></label>
+            <div class="field"><span class="field-title">Line wrapping <span class="field-index">02</span></span><div class="segmented" role="group" aria-label="Line wrapping mode"><button id="mode-single" class="segment" aria-pressed="true" type="button">Single line</button><button id="mode-wrap" class="segment" aria-pressed="false" type="button">Wrap to fit</button></div></div>
+            <label class="field" for="font-select"><span class="field-title">Typeface <span class="field-index">03</span></span><div class="select-wrap"><select id="font-select"><option value="sans">Modern sans</option><option value="serif">Editorial serif</option><option value="mono">Monospace</option></select><span class="select-chevron" aria-hidden="true">⌄</span></div></label>
+            <div class="field"><div class="field-title"><label for="tracking-input">Letter spacing <span class="field-index">04</span></label><output id="tracking-output">−0.035 em</output></div><input type="range" id="tracking-input" min="-0.08" max="0.16" value="-0.035" step="0.005" /><div class="range-labels"><span>−0.08 em</span><span>+0.16 em</span></div></div>
+            <div class="field"><span class="field-title">Starting compositions <span class="field-index">05</span></span><div class="presets"><button type="button" data-preset="display">Display <span>↗</span></button><button type="button" data-preset="editorial">Editorial <span>↗</span></button><button type="button" data-preset="compact">Compact <span>↗</span></button></div></div>
+            <div class="inspector-actions"><button class="action-primary" id="copy-css" type="button">Copy CSS <span aria-hidden="true">↗</span></button><button class="action-secondary" id="reset" type="button">Reset</button></div>
+            <p class="save-note" id="save-note" role="status"><span class="live-dot small"></span> Changes saved locally</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="explain" aria-labelledby="how-title">
+        <div class="explain-left"><div class="eyebrow"><span class="chapter">02 / UNDER THE HOOD</span></div><h2 id="how-title">Layout is the<br><em>equation.</em></h2><p>Instead of mapping a pointer delta directly to CSS, we ask the browser which CSS value satisfies the shape you draw.</p></div>
+        <div class="steps">
+          <div class="step"><span class="step-num">01</span><div><h3>Set a target</h3><p>Dragging a handle establishes the frame’s desired width and height.</p></div></div>
+          <div class="step"><span class="step-num">02</span><div><h3>Measure candidate states</h3><p>An invisible, style-matched DOM heading is measured using <code>getBoundingClientRect()</code>.</p></div></div>
+          <div class="step"><span class="step-num">03</span><div><h3>Solve, then apply</h3><p>The largest fitting font size is found and written to a CSS custom property. The underlying state is serializable.</p></div></div>
+        </div>
+      </section>
+      <div class="footer"><span>CONSTRAINT / STUDIO</span><span>MODEL → DOM → MEASURE → SOLVE</span><span>AN EXPERIMENT IN DIRECT MANIPULATION</span></div>
+    </main>
+  </div>
+</body>
+</html>
