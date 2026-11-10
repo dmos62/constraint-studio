@@ -17,7 +17,7 @@ python3 -m http.server 8000
 
 - Drag right, bottom, or corner handles to resize the heading frame.
 - Solve font size from **actual browser measurements**, rather than mapping pointer distance directly to CSS pixels.
-- Fast ratio-based solution for single-line headings, measured binary search for wrapping text.
+- Fast ratio-based solution for single-line headings, measured binary search for wrapping text, using the live heading inside its actual frame.
 - Edit text, choose a font family, adjust `letter-spacing`, and switch between wrapping modes.
 - Accessible resize handles with arrow-key support (hold Shift for larger steps).
 - Presets, copyable CSS, and autosaved local configuration.
@@ -40,14 +40,14 @@ target geometry -> candidate CSS state -> DOM measurement -> solve
 For a proposed font size `s`, the browser measures the rendered heading to obtain `width(s)` and `height(s)`. We choose the largest `s` satisfying:
 
 ```
-width(s) <= targetWidth - 22
-height(s) <= targetHeight - 22
+width(s) <= frameInnerWidth
+height(s) <= frameInnerHeight
 12 <= s <= 240
 ```
 
 With **one parameter**, the heading usually fills only the limiting dimension; exact contact with both frame edges is not generally possible without another degree of freedom. Measurements use line-box geometry, not painted glyph outlines. Normal/wrapped mode can have discontinuities as text moves between lines.
 
-The invisible probe is plain HTML, not a canvas renderer. It uses the actual font metrics and CSS text layout available in the browser.
+The solver measures the *visible heading itself*, within its actual frame. This avoids off-by-one errors that can arise when a separate measurement probe has slightly different available width or CSS layout. Intermediate candidate sizes are applied synchronously within one animation frame, so they are not painted.
 
 ## Static-site-generator integration
 
