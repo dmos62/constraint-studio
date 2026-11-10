@@ -87,7 +87,7 @@
         <div class="explain-left"><div class="eyebrow"><span class="chapter">02 / UNDER THE HOOD</span></div><h2 id="how-title">Layout is the<br><em>equation.</em></h2><p>Instead of mapping a pointer delta directly to CSS, we ask the browser which CSS value satisfies the shape you draw.</p></div>
         <div class="steps">
           <div class="step"><span class="step-num">01</span><div><h3>Set a target</h3><p>Dragging a handle establishes the frame’s desired width and height.</p></div></div>
-          <div class="step"><span class="step-num">02</span><div><h3>Measure candidate states</h3><p>An invisible, style-matched DOM heading is measured using <code>getBoundingClientRect()</code>.</p></div></div>
+          <div class="step"><span class="step-num">02</span><div><h3>Measure candidate states</h3><p>The actual heading, in its real container, is measured using <code>getBoundingClientRect()</code>.</p></div></div>
           <div class="step"><span class="step-num">03</span><div><h3>Solve, then apply</h3><p>The largest fitting font size is found and written to a CSS custom property. The underlying state is serializable.</p></div></div>
         </div>
       </section>
